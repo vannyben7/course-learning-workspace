@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Course Learning Workspace</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <section class="dashboard-view" id="dashboardView">
+      <header class="dashboard-top">
+        <div class="brand">
+          <div class="brand-mark">CL</div>
+          <div>
+            <span data-i18n="brandEyebrow">Course-centered</span>
+            <h1 data-i18n="brandTitle">Learning Workspace</h1>
+          </div>
+        </div>
+        <div class="dashboard-actions">
+          <button id="dashboardSettingsButton" type="button" data-i18n="settings">Settings</button>
+        </div>
+      </header>
+
+      <main class="dashboard-main">
+        <div class="dashboard-toolbar">
+          <div>
+            <span data-i18n="myCoursesEyebrow">Local learning space</span>
+            <h2 data-i18n="myCoursesTitle">My Courses</h2>
+          </div>
+          <div class="course-search-inline">
+            <input id="courseSearchInput" data-i18n-placeholder="searchCoursesPlaceholder" placeholder="Search courses" />
+            <button class="primary" id="searchCoursesButton" type="button" data-i18n="searchCourses">Search courses</button>
+          </div>
+        </div>
+        <div class="course-grid" id="courseGrid"></div>
+      </main>
+    </section>
+
+    <div class="modal-backdrop hidden" id="createCourseModal">
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="createCourseDialogTitle">
+        <div class="panel-head">
+          <h3 id="createCourseDialogTitle" data-i18n="createCourseDialogTitle">Create a course</h3>
+          <button id="cancelCreateCourseButton" type="button" aria-label="Close">×</button>
+        </div>
+        <p class="quiet" data-i18n="createCourseDialogHelp">Name the course first. The system will create a local course folder and open Course file management.</p>
+        <label>
+          <span data-i18n="courseNameLabel">Course name</span>
+          <input id="modalCourseNameInput" data-i18n-placeholder="newCoursePlaceholder" placeholder="Course name" />
+        </label>
+        <div class="modal-actions">
+          <button id="closeCreateCourseButton" type="button" data-i18n="cancel">Cancel</button>
+          <button class="primary" id="confirmCreateCourseButton" type="button" data-i18n="createAndManage">Create and manage files</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="management-view hidden" id="fileManagerView">
+      <header class="subview-top">
+        <button id="managerBackButton" type="button" data-i18n="backToCourses">Back to courses</button>
+        <div>
+          <span data-i18n="fileManagerEyebrow">Course file management</span>
+          <h2 id="managerCourseTitle">Course</h2>
+        </div>
+        <button class="primary" id="openLearningButton" type="button" data-i18n="openLearning">Open learning space</button>
+      </header>
+
+      <main class="management-main">
+        <article class="wide-panel upload-panel">
+          <div class="panel-head">
+            <h3 data-i18n="uploadMaterialsTitle">Add course materials</h3>
+            <span data-i18n="localCopy">Copied locally</span>
+          </div>
+          <p class="quiet" data-i18n="uploadMaterialsHelp">Choose files from your computer. The system copies them into this course folder and checks readability.</p>
+          <div class="file-upload-row">
+            <input id="materialUploadInput" type="file" multiple />
+            <button class="primary" id="uploadMaterialsButton" type="button" data-i18n="uploadMaterials">Upload materials</button>
+          </div>
+          <div class="status-box" id="managerStatus" data-i18n="managerEmpty">No file action yet.</div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h3 data-i18n="unitPlannerTitle">Learning units</h3>
+            <span id="unitCount">0</span>
+          </div>
+          <div class="unit-create-row">
+            <input id="newUnitNameInput" data-i18n-placeholder="newUnitPlaceholder" placeholder="Week 1 / Topic 1" />
+            <button id="createUnitButton" type="button" data-i18n="createUnit">Create unit</button>
+          </div>
+          <div class="unit-manager-list" id="unitManagerList"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h3 data-i18n="materialsTitle">Materials</h3>
+            <span id="managerMaterialsCount">0</span>
+          </div>
+          <p class="quiet" data-i18n="assignHelp">Select materials, choose a learning unit, then move them into that unit folder.</p>
+          <div class="assign-row">
+            <select id="assignUnitSelect"></select>
+            <button id="assignMaterialsButton" type="button" data-i18n="assignToUnit">Move selected to unit</button>
+          </div>
+          <div class="manager-material-list" id="managerMaterialList"></div>
+        </article>
+      </main>
+    </section>
+
+    <section class="settings-view hidden" id="settingsView">
+      <header class="subview-top">
+        <button id="settingsBackButton" type="button" data-i18n="backToCourses">Back to courses</button>
+        <div>
+          <span data-i18n="settingsEyebrow">Local preferences</span>
+          <h2 data-i18n="settings">Settings</h2>
+        </div>
+      </header>
+
+      <main class="settings-main">
+        <article class="panel">
+          <h3 data-i18n="languageLabel">Interface language</h3>
+          <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </article>
+        <article class="panel">
+          <h3 data-i18n="storageRootTitle">Default file storage</h3>
+          <p class="quiet" data-i18n="storageRootHelp">The web prototype stores course folders inside the local app data directory. A desktop shell can add a native folder picker later.</p>
+          <div class="status-box" id="storageRootDisplay"></div>
+        </article>
+        <article class="panel">
+          <h3 data-i18n="readerSettingsTitle">Reader</h3>
+          <label class="setting-check">
+            <input id="autoHideSidebarInput" type="checkbox" />
+            <span>
+              <strong data-i18n="autoHideSidebarLabel">Auto-hide learning-unit sidebar</strong>
+              <small data-i18n="autoHideSidebarHelp">When a material opens in Reader, collapse the left sidebar by default.</small>
+            </span>
+          </label>
+        </article>
+        <article class="panel">
+          <h3 data-i18n="apiSettingsTitle">Study assistant model</h3>
+          <p class="quiet" data-i18n="apiSettingsHelp">The study assistant can use a cloud model when configured. Course-material mode sends selected course excerpts; Internet search mode also sends selected web snippets.</p>
+          <label>
+            <span data-i18n="apiProviderLabel">Provider</span>
+            <select id="apiProviderSelect">
+              <option value="local" data-i18n="apiProviderLocal">Local citations only</option>
+              <option value="deepseek" data-i18n="apiProviderDeepSeek">DeepSeek</option>
+              <option value="openai" data-i18n="apiProviderOpenAI">OpenAI</option>
+              <option value="gemini" data-i18n="apiProviderGemini">Google Gemini</option>
+              <option value="openrouter" data-i18n="apiProviderOpenRouter">OpenRouter</option>
+              <option value="kimi" data-i18n="apiProviderKimi">Kimi / Moonshot</option>
+              <option value="custom" data-i18n="apiProviderCustom">Custom OpenAI-compatible</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="apiModelLabel">Model</span>
+            <select id="apiModelSelect"></select>
+          </label>
+          <label>
+            <span data-i18n="apiCustomModelLabel">Custom model</span>
+            <input id="apiModelInput" type="text" data-i18n-placeholder="apiModelPlaceholder" placeholder="deepseek-v4-flash" />
+          </label>
+          <label>
+            <span data-i18n="apiBaseUrlLabel">Base URL</span>
+            <input id="apiBaseUrlInput" type="url" data-i18n-placeholder="apiBaseUrlPlaceholder" placeholder="https://api.deepseek.com" />
+          </label>
+          <label>
+            <span data-i18n="apiKeyLabel">API key</span>
+            <input id="apiKeyInput" type="password" data-i18n-placeholder="apiKeyPlaceholder" placeholder="Stored in this browser only" autocomplete="off" />
+          </label>
+          <div class="settings-actions">
+            <button id="testApiButton" type="button" data-i18n="apiTestButton">Test API key</button>
+            <button id="clearApiKeyButton" type="button" data-i18n="apiClearKey">Clear key</button>
+          </div>
+          <div class="status-box" id="apiTestStatus" data-i18n="apiTestReady">No API test yet.</div>
+        </article>
+      </main>
+    </section>
+
+    <div class="app-shell hidden" id="learningView">
+      <aside class="course-rail">
+        <div class="brand">
+          <div class="brand-mark">CL</div>
+          <div>
+            <span data-i18n="brandEyebrow">Course-centered</span>
+            <h1 data-i18n="brandTitle">Learning Workspace</h1>
+          </div>
+        </div>
+
+        <section class="rail-section">
+          <h2 data-i18n="coursesHeading">Course</h2>
+          <button class="course-card active" id="courseHomeButton" type="button">
+            <strong id="courseName">No course selected</strong>
+            <span id="courseMeta">Create a course to begin</span>
+          </button>
+        </section>
+
+        <section class="rail-section">
+          <h2 data-i18n="unitsHeading">Learning Units</h2>
+          <div class="unit-tree" id="unitTree"></div>
+        </section>
+
+        <section class="rail-section policy-card">
+          <h2 data-i18n="studyAssistantRailTitle">学习辅助</h2>
+          <p data-i18n="studyAssistantRailBody">围绕当前文件、课程资料和必要的互联网背景帮助理解。</p>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="topbar-title">
+            <button class="sidebar-toggle" id="sidebarToggleButton" type="button" aria-pressed="false" aria-label="Toggle sidebar" title="Toggle sidebar">
+              <span class="sidebar-icon"></span>
+            </button>
+            <button class="icon-button settings-icon-button" id="learningSettingsButton" type="button" aria-label="Settings" title="Settings">
+              <svg class="settings-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path>
+                <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.05.05a2.1 2.1 0 0 1-2.97 2.97l-.05-.05a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.09 1.65V21.3a2.1 2.1 0 0 1-4.2 0v-.07a1.8 1.8 0 0 0-1.09-1.65 1.8 1.8 0 0 0-1.98.36l-.05.05a2.1 2.1 0 0 1-2.97-2.97l.05-.05A1.8 1.8 0 0 0 3.86 15a1.8 1.8 0 0 0-1.65-1.09H2.1a2.1 2.1 0 0 1 0-4.2h.11a1.8 1.8 0 0 0 1.65-1.09 1.8 1.8 0 0 0-.36-1.98l-.05-.05a2.1 2.1 0 0 1 2.97-2.97l.05.05a1.8 1.8 0 0 0 1.98.36 1.8 1.8 0 0 0 1.09-1.65V2.3a2.1 2.1 0 0 1 4.2 0v.07a1.8 1.8 0 0 0 1.09 1.65 1.8 1.8 0 0 0 1.98-.36l.05-.05a2.1 2.1 0 0 1 2.97 2.97l-.05.05a1.8 1.8 0 0 0-.36 1.98 1.8 1.8 0 0 0 1.65 1.09h.11a2.1 2.1 0 0 1 0 4.2h-.11A1.8 1.8 0 0 0 19.4 15Z"></path>
+              </svg>
+            </button>
+            <div>
+              <span data-i18n="currentCourseLabel">Current course</span>
+              <h2 id="activeTitle" data-i18n="emptyCourseTitle">Select a course</h2>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button id="backToDashboardButton" type="button" data-i18n="backToCourses">Back to courses</button>
+            <button id="manageFilesButton" type="button" data-i18n="courseFiles">Course files</button>
+            <button id="refreshButton" type="button" data-i18n="refresh">Refresh</button>
+            <button class="primary" id="continueReadingButton" type="button" data-i18n="continueReading">Continue reading</button>
+          </div>
+        </header>
+
+        <nav class="mode-tabs" aria-label="Workspace modes">
+          <button class="active" data-panel="home" type="button" data-i18n="tabHome">Course Home</button>
+          <button data-panel="reader" type="button" data-i18n="tabReader">Reader</button>
+          <button data-panel="notes" type="button" data-i18n="tabNotes">Notes</button>
+        </nav>
+
+        <section class="panel-grid active" id="home">
+          <article class="wide-panel">
+            <div class="panel-head">
+              <h3 id="homeNotesTitle" data-i18n="allNotesTitle">All Learning Notes</h3>
+              <span id="notesCount">0</span>
+            </div>
+            <div class="note-stack compact" id="recentNotes"></div>
+          </article>
+        </section>
+
+        <section class="reader-layout" id="reader">
+          <article class="document-view">
+            <div class="panel-head">
+              <h3 id="readerMaterialTitle" data-i18n="readerTitle">Reader</h3>
+              <span id="readerMaterialMeta" data-i18n="readerEmptyMeta">No material selected</span>
+            </div>
+            <div class="document-page" id="documentPage">
+              <p class="quiet" data-i18n="readerEmptyBody">Choose a material from the learning-unit tree, then double-click it to start reading.</p>
+            </div>
+          </article>
+          <aside class="note-rail">
+            <h3 data-i18n="readingNotesTitle">Reading Notes</h3>
+            <label>
+              <span data-i18n="myNoteLabel">My note</span>
+              <textarea id="noteInput" rows="8" data-i18n-placeholder="myNotePlaceholder" placeholder="Write your own note here."></textarea>
+            </label>
+            <div class="note-actions">
+              <button class="primary" id="saveNoteButton" type="button" data-i18n="saveNote">Save note</button>
+              <span class="save-status" id="noteSaveStatus" data-i18n="saveReady">Use Save to sync.</span>
+            </div>
+            <section class="annotation-tools">
+              <div class="panel-head">
+                <h3 data-i18n="annotationToolsTitle">Annotation</h3>
+                <button id="markRegionButton" type="button" data-i18n="markRegion">Mark area</button>
+              </div>
+              <div class="selection-card" id="annotationSelection">
+                <span data-i18n="noSelection">Select text, or mark an area on a PDF page.</span>
+              </div>
+              <label>
+                <span data-i18n="annotationCommentLabel">Annotation note</span>
+                <textarea id="annotationInput" rows="5" data-i18n-placeholder="annotationCommentPlaceholder" placeholder="Explain why this passage or area matters."></textarea>
+              </label>
+              <div class="annotation-save-row">
+                <button class="primary" id="saveAnnotationButton" type="button" data-i18n="saveAnnotation">Save annotation</button>
+                <button class="hidden" id="cancelAnnotationEditButton" type="button" data-i18n="cancelEdit">Cancel edit</button>
+                <span class="save-status" id="annotationSaveStatus" data-i18n="saveReady">Use Save to sync.</span>
+              </div>
+            </section>
+            <section class="annotation-stack-wrap">
+              <h3 data-i18n="annotationsTitle">Anchored Annotations</h3>
+              <div class="note-stack annotation-stack" id="annotationList"></div>
+            </section>
+          </aside>
+        </section>
+
+        <section class="panel-grid" id="notes">
+          <article class="wide-panel">
+            <div class="panel-head">
+              <h3 data-i18n="learningNotesTitle">Learning Notes</h3>
+              <span data-i18n="markdownReady">Markdown-ready later</span>
+            </div>
+            <div class="note-stack" id="allNotes"></div>
+          </article>
+        </section>
+      </main>
+
+      <aside class="assistant-rail">
+        <div class="assistant-head">
+          <span data-i18n="studyAssistantEyebrow">学习辅助</span>
+          <strong data-i18n="studyAssistantTitle">读懂课程资料</strong>
+        </div>
+        <div class="assistant-card" id="assistantCard">
+          <small data-i18n="defaultBehavior">Default behavior</small>
+          <p data-i18n="assistantDefaultBody">Start from the current file and course materials. Internet search is separate.</p>
+        </div>
+        <div class="assistant-actions">
+          <button type="button" data-action-question="explain" data-action-scope="material" data-i18n="fileSummaryAction">File summary</button>
+          <button type="button" data-action-question="connect" data-action-scope="course" data-i18n="connectCourseAction">Connect to course</button>
+        </div>
+        <div class="assistant-selection-chip hidden" id="assistantSelectionChip"></div>
+        <form class="ask-box" id="assistantAskForm">
+          <label for="question" data-i18n="askQuestionLabel">Ask a course question</label>
+          <textarea id="question" rows="5" data-i18n-placeholder="askPlaceholder" placeholder="Ask about the current file or course."></textarea>
+          <fieldset class="source-scope">
+            <legend data-i18n="scopeTitle">Mode</legend>
+            <label><input name="askScope" type="radio" value="course" checked /><span data-i18n="scopeCourseOnly">Course materials</span></label>
+            <label><input name="askScope" type="radio" value="course_web" /><span data-i18n="scopeInternetSearch">Internet search</span></label>
+          </fieldset>
+          <button class="primary" type="submit" data-i18n="askWithCitations">Ask</button>
+        </form>
+      </aside>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
